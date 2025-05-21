@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import api from '../api/axios';
 import { useNavigate } from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
 	const navigate = useNavigate()
-	// const [user, setUser] = useState(null)
+	const [currentEmployee, setCurrentEmployee] = useState({})
 	const [tokens, setTokens] = useState(() => {
 		const access = localStorage.getItem('access_token');
 		const refresh = localStorage.getItem('refresh_token');
@@ -16,23 +17,18 @@ export const AuthProvider = ({ children }) => {
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
-		// const fetchUser = async () => {
-		// 	setLoading(true);
-		// 	try {
-		// 		if (tokens?.access) {
-		// 			const res = await api.get('auth/user/', {
-		// 			headers: { Authorization: `Bearer ${tokens.access}` },
-		// 			});
-		// 			setUser(res.data);
-		// 		}
-		// 	} catch (err) {
-		// 		logout(); // token invalid or expired
-		// 	} finally {
-		// 		setLoading(false);
-		// 	}
-		// };
+		if (tokens?.access) {
+			const decoded = jwtDecode(tokens.access);
 
-		// fetchUser();
+			setCurrentEmployee({
+				employee_id: decoded.employee_id,
+				first_name: decoded.first_name,
+				last_name: decoded.last_name,
+				company_id: decoded.company_id
+			});
+		} else {
+			logout();
+		}
 	}, [tokens]);
 
 	const login = async (credentials) => {
@@ -46,11 +42,6 @@ export const AuthProvider = ({ children }) => {
 			localStorage.setItem('access_token', access);
 			localStorage.setItem('refresh_token', refresh);
 
-			// const userRes = await api.get('auth/user/', {
-			// 	headers: { Authorization: `Bearer ${access}` },
-			// });
-
-			// setUser(userRes.data);
 			navigate('/dashboard');
 		} catch (err) {
 			throw err.response?.data?.detail || 'Login failed';
@@ -61,13 +52,13 @@ export const AuthProvider = ({ children }) => {
 
 	const logout = () => {
 		setTokens(null);
-		// setUser(null);
+		setCurrentEmployee({});
 		localStorage.clear();
 		navigate('/');
 	};
 
 	return (
-		<AuthContext.Provider value={{ tokens, login, logout }}>
+		<AuthContext.Provider value={{ tokens, login, logout, currentEmployee, loading }}>
 			{children}
 		</AuthContext.Provider>
 	)

@@ -7,8 +7,7 @@ export const injectLogout = (logoutFn) => {
 };
 
 const api = axios.create({
-	baseURL: 'http://127.0.0.1:8000/api',
-	headers: { 'Content-Type': 'application/json' }
+	baseURL: 'http://127.0.0.1:8000/api'
 });
 
 // Define whitelist rules with both path and method

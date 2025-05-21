@@ -12,10 +12,27 @@ const Employees = () => {
 	const [lazyItems, setLazyItems] = useState([]);
 	const [totalRecords, setTotalRecords] = useState(0);
 	const [loading, setLoading] = useState(false);
+	const [roles, setRoles] = useState({});
 
 	const goToCreate = () => {
 		navigate('/employee/new');
 	};
+
+	useEffect(() => {
+		setLoading(true);
+		api.get('/employees/roles').then((res) => {
+			const data = res.data.data;
+			const _roles = data.reduce((result, role) => {
+				result[role.role_id] = role.role_name;
+				return result;
+			}, {});
+			setRoles(_roles);
+		}).catch(() => {
+			// handle error or show toast
+		}).finally(() => {
+			setLoading(false);
+		});
+	}, []);
 
 	// Simulated page size
 	const PAGE_SIZE = 20;
@@ -61,18 +78,18 @@ const Employees = () => {
 			<div className="grid">
 				{
 					employees.map((emp) => (
-						<div key={emp.employee_id} className="col-12 lg:col-4 p-2">
+						<div key={emp.employee_id} className="col-12 sm:col-6 md:col-6 lg:col-4 p-2">
 							<div className="shadow-2 surface-card border-round p-4">
 								<div className="flex align-items-start">
-									<Image src={emp.avatar || "../public/male.png"} zoomSrc={emp.avatar || "../public/male.png"} alt="Image" width="90" height="80" preview />
+									<Image src={emp.profile_picture_path || (emp.gender == 1 ? "../public/male.png" : "../public/female.png")} zoomSrc={emp.profile_picture_path || (emp.gender == 1 ? "../public/male.png" : "../public/female.png")} alt="Image" width="90" height="80" preview={emp.profile_picture_path} />
 									<div className="ml-3">
 										<span className="block text-900 mb-1 text-sm font-medium">{emp.first_name} {emp.last_name}</span>
 										<p className="text-600 text-xs mt-0 mb-2">{emp.email}</p>
-										{emp.roles.map((role, index) => (
+										{emp.roles.map((roleId, index) => (
 											<Tag
 												key={index}
-												value={role.role_name}
-												severity={role.role_name === 'Admin' ? 'info' : 'success'}
+												value={roles[roleId]}
+												severity={roles[roleId] === 'Admin' ? 'info' : 'success'}
 												className="mr-2 mb-2"
 											/>
 										))}

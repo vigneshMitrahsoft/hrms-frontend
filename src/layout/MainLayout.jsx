@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 
 const MainLayout = ({ children }) => {
 	const [visible, setVisible] = useState(false);
-	const { logout, user } = useAuth();
+	const { logout, currentEmployee } = useAuth();
 	const navigate = useNavigate();
 
 	const sidebarItems = [
@@ -17,6 +17,14 @@ const MainLayout = ({ children }) => {
 			icon: 'pi pi-home',
 			command: () => {
 				navigate('/dashboard');
+				setVisible(false);
+			},
+		},
+		{
+			label: 'HR Dashboard',
+			icon: 'pi pi-warehouse',
+			command: () => {
+				navigate('/hr-dashboard');
 				setVisible(false);
 			},
 		},
@@ -78,7 +86,7 @@ const MainLayout = ({ children }) => {
 		<Button icon="pi pi-bars" className="p-button-text" onClick={() => setVisible(true)} />
 	);
 
-	const end = <span className="mr-4 text-sm">Hello, {user?.username}</span>;
+	const end = <span className="mr-4 text-sm">Hello, {currentEmployee?.first_name} {currentEmployee?.last_name}</span>;
 
 	return (
 		<div className="min-h-screen">
