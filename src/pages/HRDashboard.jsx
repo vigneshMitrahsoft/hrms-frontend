@@ -14,7 +14,6 @@ const HRDashboard = () => {
 		try {
 			api.get('dashboard/hr').then((res) => {
 				console.log('Dashboard data:', res.data.data); // ← Add this
-				setDashboardData(res.data.data);
 			});
 		} catch {
 			showToast({ severity: 'error', summary: 'Error', detail: 'Issue on fetching dashboard information.' });
